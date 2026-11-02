@@ -35,6 +35,6 @@ def handle_ai_response(message):
         bot.reply_to(message, "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.")
 
 if __name__ == "__main__":
-    # مسح أي اتصال معلق لتجنب خطأ 409
-    bot.remove_webhook()
+    # حذف أي ويب هوك معلق أو اتصال قديم وتجاهل التحديثات القديمة لكسر التعارض
+    bot.delete_webhook(drop_pending_updates=True)
     bot.infinity_polling()
