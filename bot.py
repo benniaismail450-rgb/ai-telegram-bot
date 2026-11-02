@@ -22,7 +22,6 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # استخدام النموذج المحدث المطلوب
         response = client.models.generate_content(
             model="gemini-3.8-flash",
             contents=user_query,
@@ -36,5 +35,8 @@ def handle_ai_response(message):
         bot.reply_to(message, f"عذراً، حدث خطأ في الرد: {str(e)}")
 
 if __name__ == "__main__":
-    bot.delete_webhook(drop_pending_updates=True)
-    bot.infinity_polling()
+    # مسح أي ويب هوك قديم وإيقاف أي جلسة معلقة تماماً
+    bot.remove_webhook()
+    print("Starting bot polling...")
+    # استخدام polling عادي مع السماح بتخطي التحديثات القديمة لمنع التداخل
+    bot.polling(non_stop=True, interval=1, timeout=20)
