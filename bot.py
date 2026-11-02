@@ -22,9 +22,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # استخدام النموذج القياسي المدعوم حالياً
+        # استخدام النموذج المحدث المطلوب
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.8-flash",
             contents=user_query,
         )
         if response.text:
