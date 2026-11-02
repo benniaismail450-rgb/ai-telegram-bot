@@ -1,15 +1,27 @@
 import os
+import flask
 import telebot
 from google import genai
 
 # التوكن الصحيح للبوت
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
-
-# مفتاح جيميناي مع تنظيف دقيق جداً لأي مسافات أو رموز مخفية لإنهاء خطأ Illegal header value
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+
+app = flask.Flask(__name__)
+
+@app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=['POST'])
+def webhook():
+    json_string = flask.request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+@app.route("/")
+def index():
+    return "Bot is running successfully!", 200
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -35,9 +47,14 @@ def handle_ai_response(message):
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
         print(f"Gemini Error details: {e}")
-        bot.reply_to(message, "عاضي، الخدمة تشهد ضغطاً مؤقتاً، جرب إرسال سؤالك مرة أخرى بعد ثوانٍ قليلة.")
+        bot.reply_to(message, "عذراً، الخدمة تشهد ضغطاً مؤقتاً، جرب إرسال سؤالك مرة أخرى بعد ثوانٍ قليلة.")
 
 if __name__ == "__main__":
-    bot.remove_webhook()
-    print("Starting bot polling...")
-    bot.polling(non_stop=True, interval=2, timeout=20)
+    # ربط الـ Webhook تلقائياً برابط منصة Render الخارجي
+    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
+    if RENDER_URL:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"{RENDER_URL}/{TELEGRAM_BOT_TOKEN}")
+    
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
