@@ -5,6 +5,7 @@ from google import genai
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# تهيئة العميل بالطريقة الصحيحة
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -22,6 +23,7 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
+        # استخدام نموذج جيميني القياسي
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=user_query,
@@ -31,6 +33,7 @@ def handle_ai_response(message):
         else:
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
+        print(f"Error details: {e}")  # لطباعة الخطأ الحقيقي في سجلات Render
         bot.reply_to(message, "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.")
 
 if __name__ == "__main__":
