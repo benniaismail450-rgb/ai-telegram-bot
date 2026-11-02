@@ -36,9 +36,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # استخدام نموذج بديل ومستقر لتفادي الضغط المؤقت
+        # استخدام النموذج المعتمد والمطلوب من غوغل
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_query,
         )
         if response and response.text:
@@ -47,7 +47,7 @@ def handle_ai_response(message):
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
         print(f"Gemini Error details: {e}")
-        bot.reply_to(message, f"خطأ من جيميناي: {str(e)}")
+        bot.reply_to(message, "عذراً، الخدمة تشهد ضغطاً مؤقتاً من خوادم غوغل، جرب إرسال سؤالك مرة أخرى بعد ثوانٍ قليلة.")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
