@@ -2,7 +2,7 @@ import os
 import telebot
 from google import genai
 
-TELEGRAM_BOT_TOKEN = "9020627346:AAGu_GBPEbsOqQ2bj01Toh7zw9NiXxOXzyQ"
+TELEGRAM_BOT_TOKEN = "9020627346:AAHtGBQAft23tfbZM5Hlyi2gP7j3PZ53WZM"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -35,8 +35,6 @@ def handle_ai_response(message):
         bot.reply_to(message, f"عذراً، حدث خطأ في الرد: {str(e)}")
 
 if __name__ == "__main__":
-    # مسح أي ويب هوك قديم وإيقاف أي جلسة معلقة تماماً
     bot.remove_webhook()
     print("Starting bot polling...")
-    # استخدام polling عادي مع السماح بتخطي التحديثات القديمة لمنع التداخل
     bot.polling(non_stop=True, interval=1, timeout=20)
