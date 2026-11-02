@@ -2,8 +2,8 @@ import os
 import telebot
 from google import genai
 
-# تم وضع التوكن الصحيح مباشرة هنا لضمان عمل البوت فوراً دون أخطاء
-TELEGRAM_BOT_TOKEN = "9020627346:AAHtGBQAft23tfbZM5Hlyi2gP7j3PZ53WZM"
+# تم وضع التوكن الجديد والصحيح للبوت هنا مباشرة
+TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -12,7 +12,7 @@ bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = (
-        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي المدعوم بالذكاء الاصطناعي. 🤖\n"
+        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي الجديد المدعوم بالذكاء الاصطناعي. 🤖\n"
         "يمكنك طرح أي سؤال يخطر بالك وسأقوم بالإجابة عليه فوراً."
     )
     bot.reply_to(message, welcome_text)
