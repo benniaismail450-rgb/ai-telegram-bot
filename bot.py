@@ -22,8 +22,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
+        # استخدام النموذج القياسي المدعوم حالياً
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=user_query,
         )
         if response.text:
@@ -31,10 +32,9 @@ def handle_ai_response(message):
         else:
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
-        print(f"Error details: {e}")
-        bot.reply_to(message, "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.")
+        print(f"Gemini Error details: {e}")
+        bot.reply_to(message, f"عذراً، حدث خطأ في الرد: {str(e)}")
 
 if __name__ == "__main__":
-    # حذف أي ويب هوك معلق أو اتصال قديم وتجاهل التحديثات القديمة لكسر التعارض
     bot.delete_webhook(drop_pending_updates=True)
     bot.infinity_polling()
