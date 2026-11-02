@@ -2,10 +2,10 @@ import os
 import telebot
 from google import genai
 
-# التوكن الجديد للبوت مع إزالة أي مسافات أو أسطر مخفية
+# التوكن الصحيح للبوت
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
 
-# مفتاح جيميناي مع تطبيق strip() لمنع حدوث خطأ Illegal header value
+# مفتاح جيميناي مع تنظيف المسافات
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -25,8 +25,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
+        # استخدام النموذج الصحيح والموصى به من غوغل
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_query,
         )
         if response and response.text:
