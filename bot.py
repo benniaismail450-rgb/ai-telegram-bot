@@ -3,7 +3,6 @@ import flask
 import telebot
 from google import genai
 
-# التوكن الصحيح للبوت
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
 
@@ -47,10 +46,10 @@ def handle_ai_response(message):
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
         print(f"Gemini Error details: {e}")
-        bot.reply_to(message, "عذراً، الخدمة تشهد ضغطاً مؤقتاً، جرب إرسال سؤالك مرة أخرى بعد ثوانٍ قليلة.")
+        # عرض الخطأ الحقيقي لنتمكن من معرفة السبب بدقة
+        bot.reply_to(message, f"خطأ من جيميناي: {str(e)}")
 
 if __name__ == "__main__":
-    # ربط الـ Webhook تلقائياً برابط منصة Render الخارجي
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
     if RENDER_URL:
         bot.remove_webhook()
