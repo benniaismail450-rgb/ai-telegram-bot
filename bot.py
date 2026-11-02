@@ -1,20 +1,33 @@
 import os
 import telebot
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
-# التوكن الخاص ببوتك على تيليجرام
-TELEGRAM_BOT_TOKEN = "9020627346:AAGu_GBPEbsOqQ2bj01Toh7zw9NiXxOXzyQ"
-
-# مفتاح الـ API المؤقت للرفع العام (أو يمكنك وضعه لاحقاً عبر متغيرات البيئة)
-GEMINI_API_KEY = "AIza_Placeholder_Key"
+# جلب المفاتيح من بيئة الاستضافة على Render بأمان تام
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # إعداد الذكاء الاصطناعي
 genai.configure(api_key=GEMINI_API_KEY)
+
 generation_config = {
     "temperature": 0.7,
     "max_output_tokens": 1000,
 }
-model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
+
+# إضافة فلاتر الأمان لحماية البوت من المحتوى المخالف أو الخطير
+safety_settings = {
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+}
+
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash", 
+    generation_config=generation_config,
+    safety_settings=safety_settings
+)
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -36,9 +49,15 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # توليد الإجابة باستخدام الذكاء الاصطناعي
+        # توليد الإجابة باستخدام الذكاء الاصطناعي مع الأمان المدمج
         response = model.generate_content(user_query)
-        ai_reply = response.text
+        
+        # التأكد من وجود رد صالح
+        if response.text:
+            ai_reply = response.text
+        else:
+            ai_reply = "عذراً، تم حظر هذا المحتوى بواسطة إعدادات الأمان."
+            
         bot.reply_to(message, ai_reply)
     except Exception as e:
         bot.reply_to(message, "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.")
