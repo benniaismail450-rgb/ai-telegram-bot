@@ -36,8 +36,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
+        # استخدام نموذج بديل ومستقر لتفادي الضغط المؤقت
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model="gemini-2.5-flash",
             contents=user_query,
         )
         if response and response.text:
@@ -46,7 +47,6 @@ def handle_ai_response(message):
             bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
     except Exception as e:
         print(f"Gemini Error details: {e}")
-        # عرض الخطأ الحقيقي لنتمكن من معرفة السبب بدقة
         bot.reply_to(message, f"خطأ من جيميناي: {str(e)}")
 
 if __name__ == "__main__":
