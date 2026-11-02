@@ -2,9 +2,9 @@ import os
 import telebot
 from google import genai
 
-# جلب توكن تيليجرام من متغيرات البيئة في Render بدلاً من وضعه كالنص الثابت
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "9020627346:AAHtGBQAft23tfbZM5Hlyi2gP7j3PZ53WZM")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ")
+# جلب توكن تيليجرام مع استخدام strip() لتنظيف أي مسافات فارغة بالخطأ
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "9020627346:AAHtGBQAft23tfbZM5Hlyi2gP7j3PZ53WZM").strip()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
