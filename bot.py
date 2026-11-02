@@ -2,11 +2,9 @@ import os
 import telebot
 from google import genai
 
-# التوكن الخاص بك ومفتاح الجيمني مثبتان مباشرة لتجنب أي مشاكل في المتغيرات
 TELEGRAM_BOT_TOKEN = "9020627346:AAGu_GBPEbsOqQ2bj01Toh7zw9NiXxOXzyQ"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ")
 
-# تهيئة العميل والبوّت
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -37,4 +35,6 @@ def handle_ai_response(message):
         bot.reply_to(message, "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.")
 
 if __name__ == "__main__":
+    # مسح أي اتصال معلق لتجنب خطأ 409
+    bot.remove_webhook()
     bot.infinity_polling()
