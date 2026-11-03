@@ -36,30 +36,23 @@ def handle_ai_response(message):
     user_query = message.text
     bot.send_chat_action(message.chat.id, 'typing')
     
-    # محاولة الاتصال مع إعادة المحاولة التلقائية في حال وجود ضغط مؤقت
-    max_retries = 3
-    response = None
-    
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=user_query,
-            )
-            if response and response.text:
-                break
-        except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1) # انتظار ثانية واحدة وإعادة المحاولة بصمت
-            else:
-                bot.reply_to(message, "عذراً، حدث ضغط مؤقت على الخادم، جرب إرسال سؤالك مرة أخرى.")
-                return
-
-    if response and response.text:
-        bot.reply_to(message, response.text)
-    else:
-        bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
+    try:
+        # توليد الإجابة مباشرة
+        response = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=user_query,
+        )
+        if response and response.text:
+            bot.reply_to(message, response.text)
+        else:
+            bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Gemini Error: {error_msg}")
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            bot.reply_to(message, "لقد وصلت إلى الحد المسموح من الطلبات المجانية مؤقتاً، يجدر بك إنشاء مفتاح API جديد من Google AI Studio.")
+        else:
+            bot.reply_to(message, f"عذراً، حدث ضغط مؤقت: {error_msg}")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
