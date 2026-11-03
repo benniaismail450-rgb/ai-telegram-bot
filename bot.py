@@ -1,4 +1,5 @@
 import os
+import time
 import flask
 import telebot
 from google import genai
@@ -25,8 +26,8 @@ def index():
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = (
-        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي المدعوم بالذكاء الاصطناعي. 🤖\n"
-        "يمكنك طرح أي سؤال يخطر بالك وسأقوم بالإجابة عليه فوراً."
+        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي السريع المدعوم بالذكاء الاصطناعي. 🤖\n"
+        "طرح أي سؤال وسأقوم بالإجابة عليه فوراً."
     )
     bot.reply_to(message, welcome_text)
 
@@ -35,19 +36,30 @@ def handle_ai_response(message):
     user_query = message.text
     bot.send_chat_action(message.chat.id, 'typing')
     
-    try:
-        # استخدام النموذج المعتمد والمطلوب من غوغل
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=user_query,
-        )
-        if response and response.text:
-            bot.reply_to(message, response.text)
-        else:
-            bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
-    except Exception as e:
-        print(f"Gemini Error details: {e}")
-        bot.reply_to(message, "عذراً، الخدمة تشهد ضغطاً مؤقتاً من خوادم غوغل، جرب إرسال سؤالك مرة أخرى بعد ثوانٍ قليلة.")
+    # محاولة الاتصال مع إعادة المحاولة التلقائية في حال وجود ضغط مؤقت
+    max_retries = 3
+    response = None
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=user_query,
+            )
+            if response and response.text:
+                break
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1) # انتظار ثانية واحدة وإعادة المحاولة بصمت
+            else:
+                bot.reply_to(message, "عذراً، حدث ضغط مؤقت على الخادم، جرب إرسال سؤالك مرة أخرى.")
+                return
+
+    if response and response.text:
+        bot.reply_to(message, response.text)
+    else:
+        bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
