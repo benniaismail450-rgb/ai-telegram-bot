@@ -1,11 +1,11 @@
 import os
-import time
 import flask
 import telebot
 from google import genai
 
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Lloi3u_sd1XlpoSqBiFmL9jMr-5wKf3fUYdlOrNB3ZeQ").strip()
+# استخدام المفتاح الجديد الذي أرسلته
+GEMINI_API_KEY = "AQ.Ab8RN6ICQi3RPakyVZDuL36wJ_9n_CkZ9zeYIoCuycc0iqVjlA".strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
@@ -37,7 +37,6 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # توليد الإجابة مباشرة
         response = client.models.generate_content(
             model="gemini-3.8-flash",
             contents=user_query,
@@ -49,10 +48,7 @@ def handle_ai_response(message):
     except Exception as e:
         error_msg = str(e)
         print(f"Gemini Error: {error_msg}")
-        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-            bot.reply_to(message, "لقد وصلت إلى الحد المسموح من الطلبات المجانية مؤقتاً، يجدر بك إنشاء مفتاح API جديد من Google AI Studio.")
-        else:
-            bot.reply_to(message, f"عذراً، حدث ضغط مؤقت: {error_msg}")
+        bot.reply_to(message, f"عذراً، حدث خطأ: {error_msg}")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
