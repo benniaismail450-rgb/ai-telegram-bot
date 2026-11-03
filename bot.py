@@ -4,7 +4,6 @@ import telebot
 from google import genai
 
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
-# استخدام المفتاح الجديد الذي أرسلته
 GEMINI_API_KEY = "AQ.Ab8RN6ICQi3RPakyVZDuL36wJ_9n_CkZ9zeYIoCuycc0iqVjlA".strip()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -37,8 +36,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
+        # استخدام نموذج بديل خفيف وسريع للاستجابة الفورية
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model="gemini-2.5-flash",
             contents=user_query,
         )
         if response and response.text:
