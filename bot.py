@@ -3,9 +3,9 @@ import flask
 import telebot
 import requests
 
-TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
-# يمكنك وضع مفتاح DeepSeek API الخاص بك هنا أو كمتغير بيئة
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "ضع_مفتاح_ديپسيك_هنا").strip()
+# قراءة التوكن والمفتاح بأمان من متغيرات البيئة في Render
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s").strip()
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip()
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 app = flask.Flask(__name__)
@@ -35,7 +35,6 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # الاتصال المباشر عبر API الخاص بـ DeepSeek
         headers = {
             "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
             "Content-Type": "application/json"
