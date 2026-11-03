@@ -1,14 +1,13 @@
 import os
 import flask
 import telebot
-from google import genai
+import requests
 
 TELEGRAM_BOT_TOKEN = "9104150951:AAE4JjeM6FQvFyvRfyUnxCWAyNmtp9CDV7s".strip()
-GEMINI_API_KEY = "AQ.Ab8RN6ICQi3RPakyVZDuL36wJ_9n_CkZ9zeYIoCuycc0iqVjlA".strip()
+# يمكنك وضع مفتاح DeepSeek API الخاص بك هنا أو كمتغير بيئة
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "ضع_مفتاح_ديپسيك_هنا").strip()
 
-client = genai.Client(api_key=GEMINI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
-
 app = flask.Flask(__name__)
 
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=['POST'])
@@ -20,13 +19,13 @@ def webhook():
 
 @app.route("/")
 def index():
-    return "Bot is running successfully!", 200
+    return "Bot is running successfully with DeepSeek!", 200
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = (
-        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي السريع المدعوم بالذكاء الاصطناعي. 🤖\n"
-        "طرح أي سؤال وسأقوم بالإجابة عليه فوراً."
+        "مرحباً بك يا إسماعيل! أنا مساعدك الذكي السريع المدعوم بـ DeepSeek. 🤖\n"
+        "اطرح أي سؤال وسأقوم بالإجابة عليه فوراً."
     )
     bot.reply_to(message, welcome_text)
 
@@ -36,19 +35,29 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # استخدام النموذج الإلزامي والمطلوب من غوغل
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=user_query,
-        )
-        if response and response.text:
-            bot.reply_to(message, response.text)
+        # الاتصال المباشر عبر API الخاص بـ DeepSeek
+        headers = {
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": user_query}],
+            "stream": False
+        }
+        
+        response = requests.post("https://api.deepseek.com/chat/completions", headers=headers, json=data, timeout=30)
+        res_json = response.json()
+        
+        if "choices" in res_json and len(res_json["choices"]) > 0:
+            reply_text = res_json["choices"][0]["message"]["content"]
+            bot.reply_to(message, reply_text)
         else:
-            bot.reply_to(message, "عذراً، لم أتمكن من توليد إجابة.")
+            bot.reply_to(message, f"عذراً، لم يتمكن الخادم من الرد: {res_json}")
+            
     except Exception as e:
-        error_msg = str(e)
-        print(f"Gemini Error: {error_msg}")
-        bot.reply_to(message, f"عذراً، حدث خطأ مؤقت: {error_msg}")
+        print(f"API Error: {e}")
+        bot.reply_to(message, f"عذراً، حدث خطأ في الاتصال: {str(e)}")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
