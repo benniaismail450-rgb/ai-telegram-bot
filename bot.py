@@ -36,9 +36,9 @@ def handle_ai_response(message):
     bot.send_chat_action(message.chat.id, 'typing')
     
     try:
-        # استخدام نموذج بديل خفيف وسريع للاستجابة الفورية
+        # استخدام النموذج الإلزامي والمطلوب من غوغل
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_query,
         )
         if response and response.text:
@@ -48,7 +48,7 @@ def handle_ai_response(message):
     except Exception as e:
         error_msg = str(e)
         print(f"Gemini Error: {error_msg}")
-        bot.reply_to(message, f"عذراً، حدث خطأ: {error_msg}")
+        bot.reply_to(message, f"عذراً، حدث خطأ مؤقت: {error_msg}")
 
 if __name__ == "__main__":
     RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
